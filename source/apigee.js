@@ -19,18 +19,41 @@ var importRevision = function(options, bundle, callback) {
 			return;
 		}
 
+		body = JSON.parse(body);
+
 		if (response.statusCode !== 201) {
-			callback('Received status code ' + response.statusCode + ' with body:' + body);
+			var r = { statusCode: response.statusCode, body: body };
+			callback(JSON.stringify(r));
 			return;
 		}
 
-		var bodyJson = JSON.parse(body);
+		callback(null, body);
+	});
+};
 
-		callback(null, {
-			api: bodyJson.name,
-			revision: bodyJson.revision
-		});
+var deployRevision = function(options, callback) {
+	request({
+		method: 'POST',
+		url: util.format('%s/organizations/%s/environments/%s/apis/%s/revisions/%s/deployments', APIGEE_URL, options.org, options.env, options.api, options.revision),
+		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+		qs: { override: options.override, delay: options.delay },
+		auth: { user: options.username, password: options.password }
+	}, function(err, response, body) {
+		if (err) {
+			callback(err);
+			return;
+		}
+
+		body = JSON.parse(body);
+
+		if (response.statusCode !== 200) {
+			var r = { statusCode: response.statusCode, body: body };
+			callback(JSON.stringify(r));
+		}
+
+		callback(null, body);
 	});
 };
 
 module.exports.import = importRevision;
+module.exports.deploy = deployRevision;
