@@ -5,6 +5,7 @@ var apigee = require('../../source/index.js');
 
 gulp.task('apigee:import', function(){
 	return gulp.src(['./apiproxy/**'], {base: '.'})
+		.pipe(apigee.replace(options.replace))
 		.pipe(zip('apiproxy.zip'))
 		.pipe(apigee.import(options));
 });

@@ -7,5 +7,13 @@ module.exports = {
 	override: true,
 	delay: 5,
 	revision: process.env.revision,
-	verbose: false
+	verbose: false,
+	replace: {
+		"apiproxy/gulp-v1.xml": [
+			{
+				xpath: "/APIProxy/Description",
+				value: "test123"
+			}
+		]
+	}
 };

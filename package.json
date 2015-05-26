@@ -26,6 +26,7 @@
     "through2": "^0.6.5"
   },
   "dependencies": {
+    "libxmljs": "^0.14.1",
     "request": "^2.55.0"
   }
 }
