@@ -74,9 +74,8 @@ describe('feature: import plugin', function() {
 
 		plugin.import(options);
 
-		var call = gutilLogMethod.getCall(0);
 		var e = { api: apigeeImportResponse.name, revision: apigeeImportResponse.revision };
-		expect(call.args[0]).to.be.equal(gutil.colors.green('imported ' + JSON.stringify(e)));
+		expect(gutilLogMethod.getCall(0).args[0]).to.be.equal(gutil.colors.green('imported ' + JSON.stringify(e)));
 		expect(options.revision).to.be.equal('1');
 	});
 
