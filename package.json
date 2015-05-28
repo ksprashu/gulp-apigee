@@ -20,13 +20,21 @@
   },
   "homepage": "https://github.com/seymen/gulp-apigee",
   "devDependencies": {
+    "chai": "^2.3.0",
     "gulp": "^3.8.11",
+    "gulp-file": "^0.2.0",
+    "gulp-istanbul": "^0.9.0",
+    "gulp-mocha": "^2.1.0",
     "gulp-util": "^3.0.4",
     "gulp-zip": "^3.0.2",
-    "through2": "^0.6.5"
+    "sinon": "^1.14.1",
+    "through2": "^0.6.5",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
     "libxmljs": "^0.14.1",
-    "request": "^2.55.0"
+    "request": "^2.55.0",
+    "revalidator": "^0.3.1"
   }
 }
