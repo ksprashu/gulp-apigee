@@ -56,12 +56,12 @@ describe('feature: deploy plugin', function() {
 			.yields(null, apigeeResponse);
 
 		var verbosity = options.verbose;
-		options.verbose = true;
+		options.verbose = false;
 		plugin.deploy(options); 
 		options.verbose = verbosity;
 
 		expect(gutilLogMethod.getCall(0).args[0]).to.be.equal(gutil.colors.green('deployed {"api":"gulp-v1","deployments":[{"env":"test","revision":"1","state":"deployed"}]}'));
-		expect(gutilLogMethod.getCall(1).args[0]).to.be.equal(JSON.stringify(apigeeResponse));
+		expect(gutilLogMethod.callCount).to.be.equal(1); //this is to make sure it understands verbose switch 
 	});
 	
 	it('should process multiple revision deployment response correctly', function() {

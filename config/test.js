@@ -7,7 +7,7 @@ module.exports = {
 	override: true,
 	delay: 5,
 	revision: process.env.revision,
-	verbose: true,
+	verbose: false,
 	replace: {
 		"apiproxy/gulp-v1.xml": [
 			{

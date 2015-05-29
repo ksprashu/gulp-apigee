@@ -111,7 +111,7 @@ var replace = function(options) {
 		replacementsForThisFile.forEach(function(replacement) {
 			var node = fileContentsXml.get(replacement.xpath);
 			if (node === undefined) {
-				gutil.log(gutil.colors.red('couldn\'t resolve replacement xpath ' + replacement.xpath + ' in ' + path));
+				gutil.log(gutil.colors.yellow('couldn\'t resolve replacement xpath ' + replacement.xpath + ' in ' + path));
 				return;
 			}
 			if (node.type() === 'attribute') {
@@ -120,11 +120,17 @@ var replace = function(options) {
 				node.text(replacement.value);
 			}
 
-			file.contents = new Buffer(fileContentsXml.toString());
-
-			cb(null, file);
+			file.contents = new Buffer(xmlToString(fileContentsXml));
 		});
+
+		cb(null, file);
 	});
+};
+
+var xmlToString = function(xml) {
+	var str = xml.toString(false);
+	str = str.replace('<?xml version="1.0" encoding="UTF-8"?>', '');
+	return str.replace(/\n/g, '');
 };
 
 module.exports.import = importRevision;
