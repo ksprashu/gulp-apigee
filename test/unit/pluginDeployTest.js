@@ -38,18 +38,29 @@ describe('feature: deploy plugin', function() {
 	});
 
 	it('should propagate apigee errors', function() {
+		var vinylFile = vinyl.getVinyl('bundle.zip', 'bundle-contents', false, true);
+
+		var error, nextFile;
+		throughObjMethod
+			.yields(vinylFile, null, function(err, file) { error = err; nextFile = file; });
+
 		apigeeDeployMethod
 			.yields(new Error('something happened in Apigee'));
 
-		var exception;
-		try { plugin.deploy(options); } catch (e) { exception = e; }
+		plugin.deploy(options);
 
-		expect(exception).to.be.not.undefined;
-		expect(exception).to.be.an.instanceof(gutil.PluginError);
-		expect(exception.message).to.be.equal('something happened in Apigee');
+		expect(error).to.be.not.undefined;
+		expect(error).to.be.an.instanceof(gutil.PluginError);
+		expect(error.message).to.be.equal('something happened in Apigee');
 	});
 
 	it('should process single revision deployment response correctly', function() {
+		var vinylFile = vinyl.getVinyl('bundle.zip', 'bundle-contents', false, true);
+
+		var error, nextFile;
+		throughObjMethod
+			.yields(vinylFile, null, function(err, file) { error = err; nextFile = file; });
+
 		var apigeeResponse = JSON.parse(fs.readFileSync('./test/apigee-responses/singleRevisionDeploymentResponse.json', 'utf8'));
 
 		apigeeDeployMethod
@@ -62,9 +73,17 @@ describe('feature: deploy plugin', function() {
 
 		expect(gutilLogMethod.getCall(0).args[0]).to.be.equal(gutil.colors.green('deployed {"api":"gulp-v1","deployments":[{"env":"test","revision":"1","state":"deployed"}]}'));
 		expect(gutilLogMethod.callCount).to.be.equal(1); //this is to make sure it understands verbose switch 
+		expect(nextFile).to.not.be.null;
+		expect(nextFile.name).to.be.equal('bundle.zip');
 	});
 	
 	it('should process multiple revision deployment response correctly', function() {
+		var vinylFile = vinyl.getVinyl('bundle.zip', 'bundle-contents', false, true);
+
+		var error, nextFile;
+		throughObjMethod
+			.yields(vinylFile, null, function(err, file) { error = err; nextFile = file; });
+
 		var apigeeResponse = JSON.parse(fs.readFileSync('./test/apigee-responses/multipleRevisionDeploymentResponse.json', 'utf8'));
 		apigeeDeployMethod
 			.yields(null, apigeeResponse);
@@ -76,17 +95,6 @@ describe('feature: deploy plugin', function() {
 
 		expect(gutilLogMethod.getCall(0).args[0]).to.be.equal(gutil.colors.green('deployed {"api":"gulp-v1","deployments":[{"env":"test","revision":"2","state":"deployed"},{"env":"test","revision":"1","state":"undeployed"}]}'));
 		expect(gutilLogMethod.getCall(1).args[0]).to.be.equal(JSON.stringify(apigeeResponse));
-	});
-
-	it('should send files to next pipe', function() {
-		var vinylFile = vinyl.getVinyl('bundle.zip', 'bundle-contents', false, true);
-
-		var error, nextFile;
-		throughObjMethod
-			.yields(vinylFile, null, function(err, file) { error = err; nextFile = file; });
-
-		plugin.deploy(options); 
-
 		expect(error).to.be.null;
 		expect(nextFile).to.not.be.null;
 		expect(nextFile.name).to.be.equal('bundle.zip');

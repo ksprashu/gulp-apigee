@@ -50,32 +50,31 @@ var deployRevision = function(options) {
 		throw new PluginError(PLUGIN_NAME, 'options cannot be null or empty');
 	}
 
-	apigee.deploy(options, function(err, resp) {
-		if (err) {
-			throw new PluginError(PLUGIN_NAME, err);
-		}
-
-		var r = {
-			api: resp.aPIProxy,
-			deployments: []
-		};
-
-		if (Array.isArray(resp.environment)) {
-			resp.environment.forEach(function (deployment) {
-				r.deployments.push({ env: deployment.environment, revision: deployment.revision, state: deployment.state });
-			});
-		} else {
-			r.deployments.push( { env: resp.environment, revision: resp.revision, state: resp.state } );
-		}
-
-		gutil.log(gutil.colors.green('deployed ' + JSON.stringify(r)));
-		if (options.verbose) { gutil.log(JSON.stringify(resp)); }
-	});
-
-	//TODO: Really need to do the above inside through.obj otherwise we will call cb without doing the actual work...
-
 	return through.obj(function(file, enc, cb) {
-		cb(null, file);
+		apigee.deploy(options, function(err, resp) {
+			if (err) {
+				cb(new PluginError(PLUGIN_NAME, err));
+				return;
+			}
+
+			var r = {
+				api: resp.aPIProxy,
+				deployments: []
+			};
+
+			if (Array.isArray(resp.environment)) {
+				resp.environment.forEach(function (deployment) {
+					r.deployments.push({ env: deployment.environment, revision: deployment.revision, state: deployment.state });
+				});
+			} else {
+				r.deployments.push( { env: resp.environment, revision: resp.revision, state: resp.state } );
+			}
+
+			gutil.log(gutil.colors.green('deployed ' + JSON.stringify(r)));
+			if (options.verbose) { gutil.log(JSON.stringify(resp)); }
+
+			cb(null, file);
+		});
 	});
 };
 
