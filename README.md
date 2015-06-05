@@ -5,3 +5,4 @@
 * description field to have git hash, etc like Morrisons
 * swagger documentation generation
 * check to see if there are policy files not referenced in default.xml files
+* if file.contents is null (non-read) just ignore the file and pass it along

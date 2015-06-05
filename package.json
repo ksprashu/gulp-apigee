@@ -11,7 +11,7 @@
     "url": "git://github.com/seymen/gulp-apigee"
   },
   "keywords": [
-    "apigee"
+    "apigee", "gulpplugin"
   ],
   "author": "Ozan Seymen",
   "license": "MIT",
@@ -30,7 +30,8 @@
     "sinon": "^1.14.1",
     "through2": "^0.6.5",
     "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0"
+    "vinyl-source-stream": "^1.1.0",
+    "yargs": "^3.9.1"
   },
   "dependencies": {
     "libxmljs": "^0.14.1",

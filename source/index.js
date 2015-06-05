@@ -78,6 +78,28 @@ var deployRevision = function(options) {
 	});
 };
 
+var promote = function(options) {
+	apigee.getRevision(options, function(err, body) {
+		if (err) {
+			throw new PluginError(PLUGIN_NAME, err);
+		}
+
+		options.revision = body.revision[0].name;
+		gutil.log(gutil.colors.blue('promoting revision ' + options.revision + ' from ' + options.fromEnv + ' to ' + options.toEnv));
+
+		options.env = options.toEnv;
+		apigee.deploy(options, function(err, body) {
+			if (err) {
+				throw new PluginError(PLUGIN_NAME, err);
+			}
+
+			var r = { api: body.aPIProxy, revision: body.revision, env: body.environment };
+			gutil.log(gutil.colors.green('promoted ' + JSON.stringify(r)));
+			if (options.verbose) { gutil.log(JSON.stringify(body)); }
+		});
+	});
+};
+
 var replace = function(options) {
 	if (!options) {
 		throw new PluginError(PLUGIN_NAME, 'options cannot be null or empty');
@@ -134,4 +156,5 @@ var xmlToString = function(xml) {
 
 module.exports.import = importRevision;
 module.exports.deploy = deployRevision;
+module.exports.promote = promote;
 module.exports.replace = replace;

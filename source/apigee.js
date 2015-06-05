@@ -36,7 +36,7 @@ var importRevision = function(options, bundle, callback) {
 
 		if (response.statusCode !== 201) {
 			var r = { statusCode: response.statusCode, body: body };
-			callback(r);
+			callback(new Error(JSON.stringify(r)));
 			return;
 		}
 
@@ -73,7 +73,29 @@ var deployRevision = function(options, callback) {
 
 		if (response.statusCode !== 200) {
 			var r = { statusCode: response.statusCode, body: body };
-			callback(r);
+			callback(new Error(JSON.stringify(r)));
+			return;
+		}
+
+		callback(null, body);
+	});
+};
+
+var getRevision = function(options, callback) {
+	request.get({
+		url: util.format('%s/o/%s/environments/%s/apis/%s/deployments', APIGEE_URL, options.org, options.env, options.api),
+		auth: { user: options.username, password: options.password }
+	}, function(err, response, body) {
+		if (err) {
+			callback(err);
+			return;
+		}
+
+		body = JSON.parse(body);
+
+		if (response.statusCode !== 200) {
+			var r = { statusCode: response.statusCode, body: body };
+			callback(new Error(JSON.stringify(r)));
 			return;
 		}
 
@@ -83,3 +105,4 @@ var deployRevision = function(options, callback) {
 
 module.exports.import = importRevision;
 module.exports.deploy = deployRevision;
+module.exports.getRevision = getRevision;
