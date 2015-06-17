@@ -3,12 +3,12 @@
 var request = require('request');
 var util = require('util');
 var validator = require('revalidator');
-var constraints = require('./constraints.js');
+var validations = require('./validations.js');
 
 const APIGEE_URL = 'https://api.enterprise.apigee.com/v1';
 
 var importRevision = function(options, bundle, callback) {
-	var validationResult = validator.validate({ options: options, bundle: bundle}, constraints.import);
+	var validationResult = validator.validate({ options: options, bundle: bundle}, validations.import);
 	if (!validationResult.valid) {
 		var errors = [];
 		validationResult.errors.forEach(function(validationError) {
@@ -45,7 +45,7 @@ var importRevision = function(options, bundle, callback) {
 };
 
 var activateRevision = function(options, callback) {
-	var validationResult = validator.validate({ options: options }, constraints.deploy);
+	var validationResult = validator.validate({ options: options }, validations.deploy);
 	if (!validationResult.valid) {
 		var errors = [];
 		validationResult.errors.forEach(function(validationError) {
@@ -82,7 +82,7 @@ var activateRevision = function(options, callback) {
 };
 
 var updateRevision = function(options, bundle, callback) {
-	//var validationResult = validator.validate({ options: options }, constraints.deploy);
+	//var validationResult = validator.validate({ options: options }, validations.deploy);
 	//if (!validationResult.valid) {
 		//var errors = [];
 		//validationResult.errors.forEach(function(validationError) {
