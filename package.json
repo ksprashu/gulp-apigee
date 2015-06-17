@@ -30,15 +30,13 @@
     "gulp-zip": "^3.0.2",
     "sinon": "^1.14.1",
     "through2": "^0.6.5",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0",
     "yargs": "^3.9.1"
   },
   "dependencies": {
-    "libxmljs": "^0.14.1",
     "request": "^2.55.0",
     "revalidator": "^0.3.1",
     "vinyl": "^0.5.0",
-    "vinyl-source-stream": "^1.1.0"
+    "xmldom": "^0.1.19",
+    "xpath.js": "^1.0.6"
   }
 }

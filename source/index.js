@@ -3,12 +3,15 @@
 var through = require('through2');
 var gutil = require('gulp-util');
 var apigee = require('./apigee.js');
-var libxmljs = require('libxmljs');
 var stream = require('stream');
 var File = require('vinyl');
+var select = require('xpath.js');
+var dom = require('xmldom').DOMParser;
 
 var PluginError = gutil.PluginError;
+
 const PLUGIN_NAME = 'gulp-apigee';
+const ATTRIBUTE = 2;
 
 // options = { org, api, username, password }
 var importRevision = function (options) {
@@ -227,17 +230,17 @@ var replace = function(options) {
 
 		var fileContents = file.contents.toString('utf8');
 
-		var fileContentsXml = libxmljs.parseXml(fileContents);
+		var fileContentsXml = new dom().parseFromString(fileContents);
 		replacementsForThisFile.forEach(function(replacement) {
-			var node = fileContentsXml.get(replacement.xpath);
+			var node = select(fileContentsXml, replacement.xpath)[0];
 			if (node === undefined) {
 				gutil.log(gutil.colors.yellow('couldn\'t resolve replacement xpath ' + replacement.xpath + ' in ' + path));
 				return;
 			}
-			if (node.type() === 'attribute') {
-				node.value(replacement.value);
+			if (node.nodeType === ATTRIBUTE) {
+				node.value = replacement.value;
 			} else { //comment or element
-				node.text(replacement.value);
+				node.firstChild.data = replacement.value;
 			}
 
 			file.contents = new Buffer(xmlToString(fileContentsXml));
