@@ -1,6 +1,5 @@
 var gulp = require('gulp');
 var zip = require('gulp-zip');
-var gutil = require('gulp-util');
 var args = require('yargs').argv;
 var options = require('./config/test.js');
 var apigee = require('../../source/index.js');
@@ -13,16 +12,15 @@ gulp.task('import', function(){
 });
 
 gulp.task('deploy', function() {
-	gulp.src(['./apiproxy/**'], {base: '.'})
+	return gulp.src(['./apiproxy/**'], {base: '.'})
 		.pipe(apigee.replace(options.replace))
 		.pipe(zip('apiproxy.zip'))
 		.pipe(apigee.import(options))
-		.pipe(apigee.deploy(options));
+		.pipe(apigee.activate(options));
 });
 
-// gulp promote --from test --to prod
 gulp.task('promote', function() {
-	options.fromEnv = args.from;
-	options.toEnv = args.to;
-	return apigee.promote(options);
+	var targetEnv = args.to;
+	return apigee.getDeployment(options)
+		.pipe(apigee.promoteTo(targetEnv, options));
 });

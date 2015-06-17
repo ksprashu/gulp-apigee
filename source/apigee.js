@@ -44,7 +44,7 @@ var importRevision = function(options, bundle, callback) {
 	});
 };
 
-var deployRevision = function(options, callback) {
+var activateRevision = function(options, callback) {
 	var validationResult = validator.validate({ options: options }, constraints.deploy);
 	if (!validationResult.valid) {
 		var errors = [];
@@ -81,7 +81,7 @@ var deployRevision = function(options, callback) {
 	});
 };
 
-var getRevision = function(options, callback) {
+var getDeployment = function(options, callback) {
 	request.get({
 		url: util.format('%s/o/%s/environments/%s/apis/%s/deployments', APIGEE_URL, options.org, options.env, options.api),
 		auth: { user: options.username, password: options.password }
@@ -104,5 +104,5 @@ var getRevision = function(options, callback) {
 };
 
 module.exports.import = importRevision;
-module.exports.deploy = deployRevision;
-module.exports.getRevision = getRevision;
+module.exports.activate = activateRevision;
+module.exports.getDeployment = getDeployment;
