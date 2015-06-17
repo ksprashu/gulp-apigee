@@ -9,7 +9,7 @@ var successResponse = {
 	statusCode: 200
 };
 
-var deployResponseBody = {
+var activateResponseBody = {
 	name: 'api-v1',
 	revision: '1'
 };
@@ -31,7 +31,7 @@ var bundle = {
 
 var requestPostMethod;
 
-describe('feature: deploy revision to apigee', function() {
+describe('feature: activate revision', function() {
 
 	beforeEach(function(done) {
 		requestPostMethod = sinon.stub(request, 'post');
@@ -43,11 +43,11 @@ describe('feature: deploy revision to apigee', function() {
 		done();
 	});
 
-	it('should handle successful deploy response', function(done) {
+	it('should handle successful activate response', function(done) {
 		requestPostMethod
-			.yields(null, successResponse, JSON.stringify(deployResponseBody));
+			.yields(null, successResponse, JSON.stringify(activateResponseBody));
 
-		apigee.deploy(options, function(err, body) {
+		apigee.activate(options, function(err, body) {
 			expect(err).to.be.null;
 			expect(body.name).to.be.equal('api-v1');
 			expect(body.revision).to.be.equal('1');
@@ -59,7 +59,7 @@ describe('feature: deploy revision to apigee', function() {
 		requestPostMethod
 			.yields({message: 'someerr'});
 
-		apigee.deploy(options, function(err, body) {
+		apigee.activate(options, function(err, body) {
 			expect(err).to.not.be.null;
 			expect(err.message).to.be.equal('someerr');
 			expect(body).to.be.undefined;
@@ -71,21 +71,23 @@ describe('feature: deploy revision to apigee', function() {
 		requestPostMethod
 			.yields(null, {statusCode: 400}, '{"message": "not-important"}');
 
-		apigee.deploy(options, function(err, body) {
+		apigee.activate(options, function(err, body) {
 			expect(err).to.not.be.null;
-			expect(err.statusCode).to.be.equal(400);
-			expect(err.body.message).to.be.equal('not-important');
+			expect(err.message).to.not.be.null;
+			var message = JSON.parse(err.message);
+			expect(message.statusCode).to.be.equal(400);
+			expect(message.body.message).to.be.equal('not-important');
 			done();
 		});
 	});
 
 	it('should validate options being null', function(done) {
 		requestPostMethod
-			.yields(null, successResponse, JSON.stringify(deployResponseBody));
+			.yields(null, successResponse, JSON.stringify(activateResponseBody));
 
 		var o = null;
 
-		apigee.deploy(o, function(err, body) {
+		apigee.activate(o, function(err, body) {
 			expect(err).to.not.be.null;
 			expect(err.message).to.contain('options is required');
 			done();
@@ -94,11 +96,11 @@ describe('feature: deploy revision to apigee', function() {
 
 	it('should validate options properties', function(done) {
 		requestPostMethod
-			.yields(null, successResponse, JSON.stringify(deployResponseBody));
+			.yields(null, successResponse, JSON.stringify(activateResponseBody));
 
 		var o = {};
 
-		apigee.deploy(o, function(err, body) {
+		apigee.activate(o, function(err, body) {
 			expect(err).to.not.be.null;
 			expect(err.message).to.contain('A valid options.org is required');
 			expect(err.message).to.contain('A valid options.env is required');

@@ -70,8 +70,10 @@ describe('feature: import revision to apigee', function() {
 
 		apigee.import(options, bundle, function(err, body) {
 			expect(err).to.not.be.null;
-			expect(err.statusCode).to.be.equal(200);
-			expect(err.body.message).to.be.equal('not-important');
+			expect(err.message).to.not.be.null;
+			var message = JSON.parse(err.message);
+			expect(message.statusCode).to.be.equal(200);
+			expect(message.body.message).to.be.equal('not-important');
 			done();
 		});
 	});

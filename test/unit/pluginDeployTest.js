@@ -14,10 +14,10 @@ var apigeeDeployMethod,
 	gutilLogMethod,
 	throughObjMethod;
 
-describe('feature: deploy plugin', function() {
+describe('feature: activate plugin', function() {
 
 	beforeEach(function() {
-		apigeeDeployMethod = sinon.stub(apigee, 'deploy');
+		apigeeDeployMethod = sinon.stub(apigee, 'activate');
 		gutilLogMethod = sinon.stub(gutil, 'log');
 		throughObjMethod = sinon.stub(through, 'obj');
 	});
@@ -30,7 +30,7 @@ describe('feature: deploy plugin', function() {
 
 	it('should throw error if options is null or empty', function() {
 		var exception;
-		try { plugin.deploy(); } catch (e) { exception = e; }
+		try { plugin.activate(); } catch (e) { exception = e; }
 
 		expect(exception).to.be.not.undefined;
 		expect(exception).to.be.an.instanceof(gutil.PluginError);
@@ -47,7 +47,7 @@ describe('feature: deploy plugin', function() {
 		apigeeDeployMethod
 			.yields(new Error('something happened in Apigee'));
 
-		plugin.deploy(options);
+		plugin.activate(options);
 
 		expect(error).to.be.not.undefined;
 		expect(error).to.be.an.instanceof(gutil.PluginError);
@@ -68,7 +68,7 @@ describe('feature: deploy plugin', function() {
 
 		var verbosity = options.verbose;
 		options.verbose = false;
-		plugin.deploy(options); 
+		plugin.activate(options); 
 		options.verbose = verbosity;
 
 		expect(gutilLogMethod.getCall(0).args[0]).to.be.equal(gutil.colors.green('deployed {"api":"gulp-v1","deployments":[{"env":"test","revision":"1","state":"deployed"}]}'));
@@ -90,7 +90,7 @@ describe('feature: deploy plugin', function() {
 
 		var verbosity = options.verbose;
 		options.verbose = true;
-		plugin.deploy(options); 
+		plugin.activate(options); 
 		options.verbose = verbosity;
 
 		expect(gutilLogMethod.getCall(0).args[0]).to.be.equal(gutil.colors.green('deployed {"api":"gulp-v1","deployments":[{"env":"test","revision":"2","state":"deployed"},{"env":"test","revision":"1","state":"undeployed"}]}'));
