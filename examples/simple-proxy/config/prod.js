@@ -1,7 +1,7 @@
 module.exports = {
 	org: process.env.org,
 	api: process.env.api,
-	env: 'test',
+	env: 'prod',
 	username: process.env.username,
 	password: process.env.password,
 	override: true,

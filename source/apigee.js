@@ -81,7 +81,44 @@ var activateRevision = function(options, callback) {
 	});
 };
 
-var getDeployment = function(options, callback) {
+var updateRevision = function(options, bundle, callback) {
+	//var validationResult = validator.validate({ options: options }, constraints.deploy);
+	//if (!validationResult.valid) {
+		//var errors = [];
+		//validationResult.errors.forEach(function(validationError) {
+			//errors.push(util.format('A valid %s %s', 
+						//validationError.property, 
+						//validationError.message));
+		//});
+
+		//callback(new Error(errors));
+		//return;
+	//}
+	//
+	request.post({
+		url: util.format('%s/organizations/%s/apis/%s/revisions/%s', APIGEE_URL, options.org, options.api, options.revision),
+		qs: { validate: true },
+		body: bundle.contents,
+		auth: { user: options.username, password: options.password }
+	}, function(err, response, body) {
+		if (err) {
+			callback(err);
+			return;
+		}
+
+		body = JSON.parse(body);
+
+		if (response.statusCode !== 200) {
+			var r = { statusCode: response.statusCode, body: body };
+			callback(new Error(JSON.stringify(r)));
+			return;
+		}
+
+		callback(null, body);
+	});
+};
+
+var getDeployedRevision = function(options, callback) {
 	request.get({
 		url: util.format('%s/o/%s/environments/%s/apis/%s/deployments', APIGEE_URL, options.org, options.env, options.api),
 		auth: { user: options.username, password: options.password }
@@ -105,4 +142,5 @@ var getDeployment = function(options, callback) {
 
 module.exports.import = importRevision;
 module.exports.activate = activateRevision;
-module.exports.getDeployment = getDeployment;
+module.exports.update = updateRevision;
+module.exports.getDeployedRevision = getDeployedRevision;

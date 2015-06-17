@@ -82,15 +82,44 @@ var activateRevision = function(options) {
 	});
 };
 
-var test = function() {
+var updateRevision = function(options) {
+	if (!options) {
+		throw new PluginError(PLUGIN_NAME, 'options cannot be null or empty');
+	}
+
 	return through.obj(function(file, enc, cb) {
-		console.log(file.relative);
-		console.log(file.contents.toString('utf8'));
-		cb(null, file);
+		apigee.getDeployedRevision(options, function (err, revision) {
+			options.revision = revision.revision[0].name;
+
+			apigee.update(options, file, function(err, resp) {
+				if (err) {
+					cb(new PluginError(PLUGIN_NAME, err));
+					return;
+				}
+
+				var r = {
+					api: resp.aPIProxy,
+					deployments: []
+				};
+
+				if (Array.isArray(resp.environment)) {
+					resp.environment.forEach(function (deployment) {
+						r.deployments.push({ env: deployment.environment, revision: deployment.revision, state: deployment.state });
+					});
+				} else {
+					r.deployments.push( { env: resp.environment, revision: resp.revision, state: resp.state } );
+				}
+
+				gutil.log(gutil.colors.green('deployed ' + JSON.stringify(r)));
+				if (options.verbose) { gutil.log(JSON.stringify(resp)); }
+
+				cb(null, file);
+			});
+		});
 	});
 };
 
-var promoteTo = function(targetEnv, options) {
+var promote = function(options) {
 	if (!options) {
 		throw new PluginError(PLUGIN_NAME, 'options cannot be null or empty');
 	}
@@ -108,8 +137,8 @@ var promoteTo = function(targetEnv, options) {
 
 		var revisionObject = JSON.parse(file.contents.toString(enc));
 		options.revision = revisionObject.revision[0].name;
-		options.env = targetEnv;
-		gutil.log(gutil.colors.blue('promoting revision ' + options.revision + ' to ' + targetEnv));
+
+		gutil.log(gutil.colors.blue('promoting revision ' + options.revision + ' to ' + options.env));
 
 		apigee.activate(options, function(err, resp) {
 			if (err) {
@@ -139,7 +168,7 @@ var promoteTo = function(targetEnv, options) {
 };
 
 // options = { org, env, api, username, password }
-var getDeployment = function(options) {
+var getDeployedRevision = function(options) {
 	if (!options) {
 		throw new PluginError(PLUGIN_NAME, 'options cannot be null or empty');
 	}
@@ -152,7 +181,7 @@ var getDeployment = function(options) {
 			return s.push(null);
 		}
 
-		apigee.getDeployment(options, function(err, revision) {
+		apigee.getDeployedRevision(options, function(err, revision) {
 			if (err) {
 				throw new PluginError(PLUGIN_NAME, err);
 			}
@@ -169,30 +198,7 @@ var getDeployment = function(options) {
 
 	return s;
 };
-
 			
-var promote = function(options) {
-	apigee.getRevision(options, function(err, body) {
-		if (err) {
-			throw new PluginError(PLUGIN_NAME, err);
-		}
-
-		options.revision = body.revision[0].name;
-		gutil.log(gutil.colors.blue('promoting revision ' + options.revision + ' from ' + options.fromEnv + ' to ' + options.toEnv));
-
-		options.env = options.toEnv;
-		apigee.deploy(options, function(err, body) {
-			if (err) {
-				throw new PluginError(PLUGIN_NAME, err);
-			}
-
-			var r = { api: body.aPIProxy, revision: body.revision, env: body.environment };
-			gutil.log(gutil.colors.green('promoted ' + JSON.stringify(r)));
-			if (options.verbose) { gutil.log(JSON.stringify(body)); }
-		});
-	});
-};
-
 var replace = function(options) {
 	if (!options) {
 		throw new PluginError(PLUGIN_NAME, 'options cannot be null or empty');
@@ -249,8 +255,7 @@ var xmlToString = function(xml) {
 
 module.exports.import = importRevision;
 module.exports.activate = activateRevision;
+module.exports.update = updateRevision;
 module.exports.promote = promote;
-module.exports.promoteTo = promoteTo;
 module.exports.replace = replace;
-module.exports.getDeployment = getDeployment;
-module.exports.test = test;
+module.exports.getDeployedRevision = getDeployedRevision;
