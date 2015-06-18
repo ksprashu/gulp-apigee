@@ -45,7 +45,7 @@ var importRevision = function(options, bundle, callback) {
 };
 
 var activateRevision = function(options, callback) {
-	var validationResult = validator.validate({ options: options }, validations.deploy);
+	var validationResult = validator.validate({ options: options }, validations.activate);
 	if (!validationResult.valid) {
 		var errors = [];
 		validationResult.errors.forEach(function(validationError) {
@@ -82,19 +82,18 @@ var activateRevision = function(options, callback) {
 };
 
 var updateRevision = function(options, bundle, callback) {
-	//var validationResult = validator.validate({ options: options }, validations.deploy);
-	//if (!validationResult.valid) {
-		//var errors = [];
-		//validationResult.errors.forEach(function(validationError) {
-			//errors.push(util.format('A valid %s %s', 
-						//validationError.property, 
-						//validationError.message));
-		//});
+	var validationResult = validator.validate({ options: options, bundle: bundle}, validations.update);
+	if (!validationResult.valid) {
+		var errors = [];
+		validationResult.errors.forEach(function(validationError) {
+			errors.push(util.format('A valid %s %s', 
+						validationError.property, 
+						validationError.message));
+		});
+		callback(new Error(errors));
+		return;
+	}
 
-		//callback(new Error(errors));
-		//return;
-	//}
-	//
 	request.post({
 		url: util.format('%s/organizations/%s/apis/%s/revisions/%s', APIGEE_URL, options.org, options.api, options.revision),
 		qs: { validate: true },

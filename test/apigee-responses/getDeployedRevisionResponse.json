@@ -1,0 +1,24 @@
+{
+    "environment": "test",
+    "name": "gulp-v1",
+    "organization": "oseymen",
+    "revision": [
+        {
+            "configuration": {
+                "basePath": "/",
+                "steps": []
+            },
+            "name": "1",
+            "server": [
+                {
+                    "status": "deployed",
+                    "type": [
+                        "message-processor"
+                    ],
+                    "uUID": "565b29c2-6976-42dd-ae16-c622888e76a9"
+                }               
+			],
+            "state": "deployed"
+        }
+    ]
+}
