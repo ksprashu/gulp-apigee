@@ -52,7 +52,7 @@ describe('feature: Get deployed revision', function() {
 
 		apigee.getDeployedRevision(options, function(err, body) {
 			expect(err).to.not.be.null;
-			var errJson = JSON.parse(err);
+			var errJson = JSON.parse(err.message);
 			expect(errJson.a).to.be.equal('b');
 			done();
 		});

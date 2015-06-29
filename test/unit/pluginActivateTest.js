@@ -6,24 +6,24 @@ var expect = require('chai').expect;
 var options = require('../helpers/options.js');
 var apigee = require('../../source/apigee.js');
 var gutil = require('gulp-util');
-var vinyl = require('../helpers/vinyl.js');
+var vinyl = require('../helpers/vinylHelper.js');
 var fs = require('fs');
 var plugin = require('../../source/index.js');
 
-var apigeeDeployMethod,
+var apigeeActivateMethod,
 	gutilLogMethod,
 	throughObjMethod;
 
 describe('feature: activate plugin', function() {
 
 	beforeEach(function() {
-		apigeeDeployMethod = sinon.stub(apigee, 'activate');
+		apigeeActivateMethod = sinon.stub(apigee, 'activate');
 		gutilLogMethod = sinon.stub(gutil, 'log');
 		throughObjMethod = sinon.stub(through, 'obj');
 	});
 
 	afterEach(function() {
-		apigeeDeployMethod.restore();
+		apigeeActivateMethod.restore();
 		gutilLogMethod.restore();
 		throughObjMethod.restore();
 	});
@@ -44,7 +44,7 @@ describe('feature: activate plugin', function() {
 		throughObjMethod
 			.yields(vinylFile, null, function(err, file) { error = err; nextFile = file; });
 
-		apigeeDeployMethod
+		apigeeActivateMethod
 			.yields(new Error('something happened in Apigee'));
 
 		plugin.activate(options);
@@ -63,7 +63,7 @@ describe('feature: activate plugin', function() {
 
 		var apigeeResponse = JSON.parse(fs.readFileSync('./test/apigee-responses/singleRevisionDeploymentResponse.json', 'utf8'));
 
-		apigeeDeployMethod
+		apigeeActivateMethod
 			.yields(null, apigeeResponse);
 
 		var verbosity = options.verbose;
@@ -85,7 +85,7 @@ describe('feature: activate plugin', function() {
 			.yields(vinylFile, null, function(err, file) { error = err; nextFile = file; });
 
 		var apigeeResponse = JSON.parse(fs.readFileSync('./test/apigee-responses/multipleRevisionDeploymentResponse.json', 'utf8'));
-		apigeeDeployMethod
+		apigeeActivateMethod
 			.yields(null, apigeeResponse);
 
 		var verbosity = options.verbose;

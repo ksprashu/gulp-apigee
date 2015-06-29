@@ -4,7 +4,7 @@ var sinon = require('sinon');
 var through = require('through2');
 var expect = require('chai').expect;
 var gutil = require('gulp-util');
-var vinyl = require('../helpers/vinyl.js');
+var vinyl = require('../helpers/vinylHelper.js');
 var options = require('../helpers/options.js');
 var plugin = require('../../source/index.js');
 

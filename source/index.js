@@ -92,6 +92,11 @@ var updateRevision = function(options) {
 
 	return through.obj(function(file, enc, cb) {
 		apigee.getDeployedRevision(options, function (err, revision) {
+			if (err) {
+				cb(new PluginError(PLUGIN_NAME, err));
+				return;
+			}
+
 			options.revision = revision.revision[0].name;
 
 			apigee.update(options, file, function(err, resp) {
@@ -105,13 +110,7 @@ var updateRevision = function(options) {
 					deployments: []
 				};
 
-				if (Array.isArray(resp.environment)) {
-					resp.environment.forEach(function (deployment) {
-						r.deployments.push({ env: deployment.environment, revision: deployment.revision, state: deployment.state });
-					});
-				} else {
-					r.deployments.push( { env: resp.environment, revision: resp.revision, state: resp.state } );
-				}
+				r.deployments.push( { env: resp.environment, revision: resp.revision, state: resp.state } );
 
 				gutil.log(gutil.colors.green('deployed ' + JSON.stringify(r)));
 				if (options.verbose) { gutil.log(JSON.stringify(resp)); }
@@ -128,6 +127,7 @@ var promote = function(options) {
 	}
 	
 	return through.obj(function(file, enc, cb) {
+
 		if (file.isNull()) {
 			cb(new PluginError(PLUGIN_NAME, 'We cannot do anything useful with a null file'));
 			return;
@@ -139,8 +139,12 @@ var promote = function(options) {
 		}
 
 		var revisionObject = JSON.parse(file.contents.toString(enc));
-		options.revision = revisionObject.revision[0].name;
+		if (!revisionObject.revision) {
+			cb(new PluginError(PLUGIN_NAME, 'Invalid stream passed in to promote method - it requires a revision stream to be passed in'));
+			return;
+		}
 
+		options.revision = revisionObject.revision[0].name;
 		gutil.log(gutil.colors.blue('promoting revision ' + options.revision + ' to ' + options.env));
 
 		apigee.activate(options, function(err, resp) {
@@ -179,29 +183,33 @@ var getDeployedRevision = function(options) {
 	var revisionRead = false;
 
 	var s = new stream.Readable({ objectMode: true });
+
 	s._read = function() {
 		if (revisionRead) {
 			return s.push(null);
 		}
 
 		apigee.getDeployedRevision(options, function(err, revision) {
+			revisionRead = true;
+
 			if (err) {
-				throw new PluginError(PLUGIN_NAME, err);
+				gutil.log(err.message);
+				s.push(null);
+				//s.emit('error', err);
+				//throw new PluginError(PLUGIN_NAME, err);
+				return;
 			}
 
-			var o = {
+			s.push(new File( {
 				path: 'revision',
 				contents: new Buffer(JSON.stringify(revision))
-			};
-
-			revisionRead = true;
-			s.push(new File(o));
+			}));
 		});
 	};
 
 	return s;
 };
-			
+
 var replace = function(options) {
 	if (!options) {
 		throw new PluginError(PLUGIN_NAME, 'options cannot be null or empty');

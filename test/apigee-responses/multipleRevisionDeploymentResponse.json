@@ -18,62 +18,6 @@
             "message-processor"
           ],
           "uUID": "565b29c2-6976-42dd-ae16-c622888e76a9"
-        },
-        {
-          "status": "deployed",
-          "type": [
-            "message-processor"
-          ],
-          "uUID": "60a49d62-b84d-44ef-b148-140a9e06a1a7"
-        },
-        {
-          "status": "deployed",
-          "type": [
-            "router"
-          ],
-          "uUID": "998bdf1e-b8d0-4204-84d7-1e295526ad8c"
-        },
-        {
-          "status": "deployed",
-          "type": [
-            "router"
-          ],
-          "uUID": "5fc31fad-9b87-4168-824a-9f5e6beb5ce0"
-        },
-        {
-          "status": "deployed",
-          "type": [
-            "router"
-          ],
-          "uUID": "a41f30eb-99b5-4e6b-835f-74000e728fdf"
-        },
-        {
-          "status": "deployed",
-          "type": [
-            "router"
-          ],
-          "uUID": "b9cc4573-d234-4c46-9589-71b117ee6b1e"
-        },
-        {
-          "status": "deployed",
-          "type": [
-            "router"
-          ],
-          "uUID": "276741ef-78e0-4b92-ae35-0ab94dd5684b"
-        },
-        {
-          "status": "deployed",
-          "type": [
-            "router"
-          ],
-          "uUID": "bcf41dfd-2810-4cfc-b23f-5427cba932fa"
-        },
-        {
-          "status": "deployed",
-          "type": [
-            "router"
-          ],
-          "uUID": "3cb53ac7-7474-4f9a-aa37-86ca9796fdb1"
         }
       ],
       "state": "deployed"
@@ -89,63 +33,7 @@
       "organization": "oseymen",
       "revision": "1",
       "server": [
-        {
-          "status": "undeployed",
-          "type": [
-            "message-processor"
-          ],
-          "uUID": "565b29c2-6976-42dd-ae16-c622888e76a9"
-        },
-        {
-          "status": "undeployed",
-          "type": [
-            "message-processor"
-          ],
-          "uUID": "60a49d62-b84d-44ef-b148-140a9e06a1a7"
-        },
-        {
-          "status": "undeployed",
-          "type": [
-            "router"
-          ],
-          "uUID": "998bdf1e-b8d0-4204-84d7-1e295526ad8c"
-        },
-        {
-          "status": "undeployed",
-          "type": [
-            "router"
-          ],
-          "uUID": "5fc31fad-9b87-4168-824a-9f5e6beb5ce0"
-        },
-        {
-          "status": "undeployed",
-          "type": [
-            "router"
-          ],
-          "uUID": "a41f30eb-99b5-4e6b-835f-74000e728fdf"
-        },
-        {
-          "status": "undeployed",
-          "type": [
-            "router"
-          ],
-          "uUID": "b9cc4573-d234-4c46-9589-71b117ee6b1e"
-        },
-        {
-          "status": "undeployed",
-          "type": [
-            "router"
-          ],
-          "uUID": "276741ef-78e0-4b92-ae35-0ab94dd5684b"
-        },
-        {
-          "status": "undeployed",
-          "type": [
-            "router"
-          ],
-          "uUID": "bcf41dfd-2810-4cfc-b23f-5427cba932fa"
-        },
-        {
+		{
           "status": "undeployed",
           "type": [
             "router"

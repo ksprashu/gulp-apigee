@@ -1,0 +1,24 @@
+{
+  "configurationVersion" : {
+    "majorVersion" : 4,
+    "minorVersion" : 0
+  },
+  "contextInfo" : "Revision 1 of application gulp-v1, in organization oseymen",
+  "createdAt" : 1434553163845,
+  "createdBy" : "oseymen@apigee.com",
+  "description" : "test123",
+  "displayName" : "gulp-v1",
+  "lastModifiedAt" : 1434644460728,
+  "lastModifiedBy" : "oseymen@apigee.com",
+  "name" : "gulp-v1",
+  "policies" : [ ],
+  "proxyEndpoints" : [ "default" ],
+  "resourceFiles" : {
+    "resourceFile" : [ ]
+  },
+  "resources" : [ ],
+  "revision" : "1",
+  "targetEndpoints" : [ "default" ],
+  "targetServers" : [ ],
+  "type" : "Application"
+}

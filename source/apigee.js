@@ -123,7 +123,7 @@ var getDeployedRevision = function(options, callback) {
 		auth: { user: options.username, password: options.password }
 	}, function(err, response, body) {
 		if (err) {
-			callback(err);
+			callback(new Error(err));
 			return;
 		}
 

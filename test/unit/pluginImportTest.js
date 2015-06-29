@@ -6,7 +6,7 @@ var expect = require('chai').expect;
 var options = require('../helpers/options.js');
 var apigee = require('../../source/apigee.js');
 var gutil = require('gulp-util');
-var vinyl = require('../helpers/vinyl.js');
+var vinylHelper = require('../helpers/vinylHelper.js');
 var plugin = require('../../source/index.js');
 
 var apigeeImportMethod,
@@ -38,7 +38,7 @@ describe('feature: import plugin', function() {
 
 	it('should throw error if file is null', function() {
 		var error;
-		var vinylFile = vinyl.getVinyl('bundle.zip', 'bundle-contents', true);
+		var vinylFile = vinylHelper.getVinyl('bundle.zip', null, true);
 		throughObjMethod
 			.yields(vinylFile, null, function(err, file) { error = err; });
 
@@ -51,7 +51,7 @@ describe('feature: import plugin', function() {
 
 	it('should throw error if file is stream', function() {
 		var error;
-		var vinylFile = vinyl.getVinyl('bundle.zip', 'bundle-contents', false, true);
+		var vinylFile = vinylHelper.getVinyl('bundle.zip', 'bundle-contents', false, true);
 		throughObjMethod
 			.yields(vinylFile, null, function(err, file) { error = err; });
 
@@ -63,7 +63,7 @@ describe('feature: import plugin', function() {
 	});
 
 	it('should handle successful import', function() {
-		var vinylFile = vinyl.getVinyl('bundle.zip', 'bundle-contents');
+		var vinylFile = vinylHelper.getVinyl('bundle.zip', 'bundle-contents');
 
 		var apigeeImportResponse = { name: 'api-v1', revision: '1' };
 		apigeeImportMethod
@@ -80,7 +80,7 @@ describe('feature: import plugin', function() {
 	});
 
 	it('should propagate apigee errors', function() {
-		var vinylFile = vinyl.getVinyl('bundle.zip', 'bundle-contents');
+		var vinylFile = vinylHelper.getVinyl('bundle.zip', 'bundle-contents');
 
 		apigeeImportMethod
 			.yields(new Error('something happened in Apigee'));
@@ -97,7 +97,7 @@ describe('feature: import plugin', function() {
 	});
 
 	it('should output verbose information when asked', function() {
-		var vinylFile = vinyl.getVinyl('bundle.zip', 'bundle-contents');
+		var vinylFile = vinylHelper.getVinyl('bundle.zip', 'bundle-contents');
 
 		var apigeeImportResponse = { name: 'api-v1', revision: '1' };
 		apigeeImportMethod
