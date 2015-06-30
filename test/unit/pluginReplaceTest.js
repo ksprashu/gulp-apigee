@@ -46,7 +46,7 @@ describe('feature: replace plugin', function() {
 		expect(nextFile.name).to.be.equal('folder');
 	});
 
-	it('should return error for null vinyl file', function() {
+	it('should ignore null file and pass it along', function() {
 		var vinylDirectory = vinyl.getVinyl('file', 'contents', true);
 
 		var error, nextFile;
@@ -55,9 +55,9 @@ describe('feature: replace plugin', function() {
 
 		plugin.replace(options);
 
-		expect(error).to.be.not.undefined;
-		expect(error).to.be.an.instanceof(gutil.PluginError);
-		expect(error.message).to.be.equal('We cannot do anything useful with a null file');
+		expect(error).to.be.null;
+		expect(nextFile).to.be.not.null;
+		expect(nextFile.isNull()).to.be.true;
 	});
 
 	it('should bypass _this_ file if it is not mentioned at all in replacement options', function() {

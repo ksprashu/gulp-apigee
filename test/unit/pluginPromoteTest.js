@@ -37,7 +37,7 @@ describe('feature: promote plugin', function() {
 		expect(exception.message).to.be.equal('options cannot be null or empty');
 	});
 
-	it('should return error for null vinyl file', function() {
+	it('should ignore null file and pass it along', function() {
 		var vinylFile = vinyl.getVinyl('file', 'contents', true);
 
 		var error, nextFile;
@@ -46,9 +46,9 @@ describe('feature: promote plugin', function() {
 
 		plugin.promote(options);
 
-		expect(error).to.be.not.undefined;
-		expect(error).to.be.an.instanceof(gutil.PluginError);
-		expect(error.message).to.be.equal('We cannot do anything useful with a null file');
+		expect(error).to.be.null;
+		expect(nextFile).to.be.not.null;
+		expect(nextFile.isNull()).to.be.true;
 	});
 
 	it('should throw error if file is stream', function() {

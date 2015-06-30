@@ -6,7 +6,7 @@ var expect = require('chai').expect;
 var options = require('../helpers/options.js');
 var apigee = require('../../source/apigee.js');
 var gutil = require('gulp-util');
-var vinyl = require('../helpers/vinylHelper.js');
+var vinylHelper = require('../helpers/vinylHelper.js');
 var plugin = require('../../source/index.js');
 var fs = require('fs');
 
@@ -39,8 +39,35 @@ describe('feature: import plugin', function() {
 		expect(exception.message).to.be.equal('options cannot be null or empty');
 	});
 
+	it('should ignore null file and pass it along', function() {
+		var vinylFile = vinylHelper.getVinyl('bundle.zip', null, true);
+
+		var error, returnedFile;
+		throughObjMethod
+			.yields(vinylFile, null, function(err, file) { error = err; returnedFile = file; });
+
+		plugin.update(options); 
+
+		expect(error).to.be.null;
+		expect(returnedFile).to.be.not.null;
+		expect(returnedFile.isNull()).to.be.true;
+	});
+
+	it('should throw error if file is stream', function() {
+		var error;
+		var vinylFile = vinylHelper.getVinyl('bundle.zip', 'bundle-contents', false, true);
+		throughObjMethod
+			.yields(vinylFile, null, function(err, file) { error = err; });
+
+		plugin.update(options); 
+
+		expect(error).to.be.not.undefined;
+		expect(error).to.be.an.instanceof(gutil.PluginError);
+		expect(error.message).to.be.equal('Stream is not supported');
+	});
+
 	it('should handle error coming from apigee.getDeployedRevision', function() {
-		var vinylFile = vinyl.getVinyl('bundle.zip', 'bundle-contents');
+		var vinylFile = vinylHelper.getVinyl('bundle.zip', 'bundle-contents');
 
 		var error;
 		throughObjMethod
@@ -57,7 +84,7 @@ describe('feature: import plugin', function() {
 	});
 
 	it('should handle error coming from apigee.update method', function() {
-		var vinylFile = vinyl.getVinyl('bundle.zip', 'bundle-contents');
+		var vinylFile = vinylHelper.getVinyl('bundle.zip', 'bundle-contents');
 
 		var apigeeGetDeployedRevisionResponseBody = JSON.parse(fs.readFileSync('./test/apigee-responses/getDeployedRevisionResponse.json', 'utf8'));
 
@@ -79,7 +106,7 @@ describe('feature: import plugin', function() {
 	});
 
 	it('should process successful response from apigee update', function() {
-		var vinylFile = vinyl.getVinyl('bundle.zip', 'bundle-contents');
+		var vinylFile = vinylHelper.getVinyl('bundle.zip', 'bundle-contents');
 
 		var apigeeGetDeployedRevisionResponseBody = JSON.parse(fs.readFileSync('./test/apigee-responses/getDeployedRevisionResponse.json', 'utf8'));
 		var apigeeUpdateResponseBody = JSON.parse(fs.readFileSync('./test/apigee-responses/updateRevisionResponse.json', 'utf8'));

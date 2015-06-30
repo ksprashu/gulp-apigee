@@ -21,7 +21,7 @@ var importRevision = function (options) {
 
 	return through.obj(function(file, enc, cb) {
 		if (file.isNull()) {
-			cb(new PluginError(PLUGIN_NAME, 'We cannot do anything useful with a null file'));
+			cb(null, file);
 			return;
 		}
 
@@ -91,6 +91,16 @@ var updateRevision = function(options) {
 	}
 
 	return through.obj(function(file, enc, cb) {
+		if (file.isNull()) {
+			cb(null, file);
+			return;
+		}
+
+		if (file.isStream()) {
+			cb(new PluginError(PLUGIN_NAME, 'Stream is not supported'));
+			return;
+		}
+
 		apigee.getDeployedRevision(options, function (err, revision) {
 			if (err) {
 				cb(new PluginError(PLUGIN_NAME, err));
@@ -129,7 +139,7 @@ var promote = function(options) {
 	return through.obj(function(file, enc, cb) {
 
 		if (file.isNull()) {
-			cb(new PluginError(PLUGIN_NAME, 'We cannot do anything useful with a null file'));
+			cb(null, file);
 			return;
 		}
 
@@ -195,8 +205,6 @@ var getDeployedRevision = function(options) {
 			if (err) {
 				gutil.log(err.message);
 				s.push(null);
-				//s.emit('error', err);
-				//throw new PluginError(PLUGIN_NAME, err);
 				return;
 			}
 
@@ -222,7 +230,7 @@ var replace = function(options) {
 		}
 
 		if (file.isNull()) {
-			cb(new PluginError(PLUGIN_NAME, 'We cannot do anything useful with a null file'));
+			cb(null, file);
 			return;
 		}
 

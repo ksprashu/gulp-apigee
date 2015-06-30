@@ -36,17 +36,18 @@ describe('feature: import plugin', function() {
 		expect(exception.message).to.be.equal('options cannot be null or empty');
 	});
 
-	it('should throw error if file is null', function() {
-		var error;
+	it('should ignore null file and pass it along', function() {
 		var vinylFile = vinylHelper.getVinyl('bundle.zip', null, true);
+
+		var error, returnedFile;
 		throughObjMethod
-			.yields(vinylFile, null, function(err, file) { error = err; });
+			.yields(vinylFile, null, function(err, file) { error = err; returnedFile = file; });
 
 		plugin.import(options); 
 
-		expect(error).to.be.not.undefined;
-		expect(error).to.be.an.instanceof(gutil.PluginError);
-		expect(error.message).to.be.equal('We cannot do anything useful with a null file');
+		expect(error).to.be.null;
+		expect(returnedFile).to.be.not.null;
+		expect(returnedFile.isNull()).to.be.true;
 	});
 
 	it('should throw error if file is stream', function() {

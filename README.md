@@ -1,4 +1,4 @@
-* if file.contents is null (non-read) just ignore the file and pass it along
+* options validations for each function
 * description field to have git hash, etc like Morrisons
 * node.js support
 ** read package.json and only zip modules within dependencies
