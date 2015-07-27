@@ -7,11 +7,14 @@ var stream = require('stream');
 var File = require('vinyl');
 var select = require('xpath.js');
 var dom = require('xmldom').DOMParser;
+var git = require('git-last-commit');
+var moment = require('moment');
 
 var PluginError = gutil.PluginError;
 
 const PLUGIN_NAME = 'gulp-apigee';
 const ATTRIBUTE = 2;
+const REGEX_WORDWITHDOLLAR = /\$[a-z.]+/gi;
 
 // options = { org, api, username, password }
 var importRevision = function (options) {
@@ -266,10 +269,66 @@ var replace = function(options) {
 	});
 };
 
+var setProxyDescription = function() {
+	return through.obj(function(file, enc, cb) {
+		if (file.isNull()) {
+			cb(null, file);
+			return;
+		}
+
+		if (file.isStream()) {
+			cb(new PluginError(PLUGIN_NAME, 'Stream is not supported'));
+			return;
+		}
+
+		if ((file.relative.substr(-4) === '.xml') &&
+				(file.contents.toString('utf8').indexOf('<APIProxy') > -1)) {
+			gutil.log(gutil.colors.blue('setting proxy description in ' + file.relative));
+
+			var fileContents = file.contents.toString('utf8');
+			var fileContentsXml = new dom().parseFromString(fileContents);
+			var descriptionElement = select(fileContentsXml, '/APIProxy/Description')[0];
+			if (descriptionElement === undefined) {
+				cb('couldn\'t locate Description element in ' + file.relative, file);
+				return;
+			}
+
+			var desc = descriptionElement.firstChild.data;
+
+			git.getLastCommit(function(err, commit) {
+				if (err) {
+					cb(err, file);
+					return;
+				}
+
+				commit.committedDate = moment(commit.committedOn * 1000).format();
+
+				desc.match(REGEX_WORDWITHDOLLAR).forEach(function(token) {
+					var prop = token.replace('$','');
+					desc = desc.replace(token, Object.resolve(prop, commit));
+				});
+
+				gutil.log(gutil.colors.green('setting proxy description to "' + desc + '"'));
+				descriptionElement.firstChild.data = desc;
+				file.contents = new Buffer(xmlToString(fileContentsXml));
+				cb(null, file);
+			});
+		} else {
+			cb(null, file);
+		}
+	});
+};
+
 var xmlToString = function(xml) {
 	var str = xml.toString(false);
 	str = str.replace('<?xml version="1.0" encoding="UTF-8"?>', '');
 	return str.replace(/\n/g, '');
+};
+
+Object.resolve = function(path, obj, safe) {
+    return path.split('.').reduce(function(prev, curr) {
+        return !safe ? prev[curr] : (prev ? prev[curr] : undefined);
+    }, obj);
 };
 
 module.exports.import = importRevision;
@@ -278,3 +337,4 @@ module.exports.update = updateRevision;
 module.exports.promote = promote;
 module.exports.replace = replace;
 module.exports.getDeployedRevision = getDeployedRevision;
+module.exports.setProxyDescription = setProxyDescription;
