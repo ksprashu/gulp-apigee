@@ -7,12 +7,14 @@ var stream = require('stream');
 var File = require('vinyl');
 var select = require('xpath.js');
 var dom = require('xmldom').DOMParser;
-var git = require('./git.js');
+var git = require('git-last-commit');
+var moment = require('moment');
 
 var PluginError = gutil.PluginError;
 
 const PLUGIN_NAME = 'gulp-apigee';
 const ATTRIBUTE = 2;
+const REGEX_WORDWITHDOLLAR = /\$[a-z.]+/gi;
 
 // options = { org, api, username, password }
 var importRevision = function (options) {
@@ -293,13 +295,20 @@ var setProxyDescription = function() {
 
 			var desc = descriptionElement.firstChild.data;
 
-			git.getLastCommit(function(commit) {
-				desc = desc.replace('$hash', commit.shortHash);
-				desc = desc.replace('$committer', commit.committer);
-				desc = desc.replace('$commitDate', commit.commitDate);
-				desc = desc.replace('$tags', commit.tags.join(','));
+			git.getLastCommit(function(err, commit) {
+				if (err) {
+					cb(err, file);
+					return;
+				}
 
-				gutil.log(gutil.colors.green('proxy description is ' + desc));
+				commit.committedDate = moment(commit.committedOn * 1000).format();
+
+				desc.match(REGEX_WORDWITHDOLLAR).forEach(function(token) {
+					var prop = token.replace('$','');
+					desc = desc.replace(token, Object.resolve(prop, commit));
+				});
+
+				gutil.log(gutil.colors.green('setting proxy description to "' + desc + '"'));
 				descriptionElement.firstChild.data = desc;
 				file.contents = new Buffer(xmlToString(fileContentsXml));
 				cb(null, file);
@@ -314,6 +323,12 @@ var xmlToString = function(xml) {
 	var str = xml.toString(false);
 	str = str.replace('<?xml version="1.0" encoding="UTF-8"?>', '');
 	return str.replace(/\n/g, '');
+};
+
+Object.resolve = function(path, obj, safe) {
+    return path.split('.').reduce(function(prev, curr) {
+        return !safe ? prev[curr] : (prev ? prev[curr] : undefined);
+    }, obj);
 };
 
 module.exports.import = importRevision;

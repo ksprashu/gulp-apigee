@@ -7,7 +7,7 @@ var gutil = require('gulp-util');
 var vinylHelper = require('../helpers/vinylHelper.js');
 var plugin = require('../../source/index.js');
 var fs = require('fs');
-var git = require('../../source/git.js');
+var git = require('git-last-commit');
 
 var gitGetLastCommitMethod;
 var gutilLogMethod;
@@ -94,18 +94,20 @@ describe('feature: set proxy description from git', function() {
 	it('should set correct description for commit without tags', function() {
 		var vinylFile = vinylHelper.getVinyl('proxy.xml', 
 				'<APIProxy>' + 
-					'<Description>example api $tags on commit $hash by $committer on $commitDate</Description>' + 
+					'<Description>example api $tags on commit $shortHash by $committer.email on $committedDate</Description>' + 
 				'</APIProxy>');
 
 		var commit = {
 			shortHash: 'abcd',
-			committer: 'Ozan',
-			commitDate: 'date1',
+			committer: {
+				email: 'oseymen@gmail.com'
+			},
+			committedOn: 1437988060000,
 			tags: []
 		};
 
 		gitGetLastCommitMethod
-			.yields(commit);
+			.yields(null, commit);
 
 		throughObjMethod
 			.yields(vinylFile, null, function(err, file) { 
@@ -113,7 +115,7 @@ describe('feature: set proxy description from git', function() {
 				expect(file.name).to.be.equal('proxy.xml');
 				expect(file.contents.toString('utf8')).to.be.equal(
 						'<APIProxy>' +
-							'<Description>example api  on commit abcd by Ozan on date1</Description>' + 
+							'<Description>example api  on commit abcd by oseymen@gmail.com on 2015-07-27T10:07:40+01:00</Description>' + 
 						'</APIProxy>');
 			});
 
@@ -123,18 +125,20 @@ describe('feature: set proxy description from git', function() {
 	it('should set correct description for commit with single tags', function() {
 		var vinylFile = vinylHelper.getVinyl('proxy.xml', 
 				'<APIProxy>' + 
-					'<Description>example api $tags on commit $hash by $committer on $commitDate</Description>' + 
+					'<Description>example api $tags on commit $shortHash by $committer.email on $committedDate</Description>' + 
 				'</APIProxy>');
 
 		var commit = {
 			shortHash: 'abcd',
-			committer: 'Ozan',
-			commitDate: 'date1',
+			committer: {
+				email: 'oseymen@gmail.com'
+			},
+			committedOn: 1437988060000,
 			tags: ['tag1']
 		};
 
 		gitGetLastCommitMethod
-			.yields(commit);
+			.yields(null, commit);
 
 		throughObjMethod
 			.yields(vinylFile, null, function(err, file) { 
@@ -142,7 +146,7 @@ describe('feature: set proxy description from git', function() {
 				expect(file.name).to.be.equal('proxy.xml');
 				expect(file.contents.toString('utf8')).to.be.equal(
 						'<APIProxy>' +
-							'<Description>example api tag1 on commit abcd by Ozan on date1</Description>' + 
+							'<Description>example api tag1 on commit abcd by oseymen@gmail.com on 2015-07-27T10:07:40+01:00</Description>' + 
 						'</APIProxy>');
 			});
 
@@ -152,18 +156,20 @@ describe('feature: set proxy description from git', function() {
 	it('should set correct description for commit with multiple tags', function() {
 		var vinylFile = vinylHelper.getVinyl('proxy.xml', 
 				'<APIProxy>' + 
-					'<Description>example api $tags on commit $hash by $committer on $commitDate</Description>' + 
+					'<Description>example api $tags on commit $shortHash by $committer.email on $committedDate</Description>' + 
 				'</APIProxy>');
 
 		var commit = {
 			shortHash: 'abcd',
-			committer: 'Ozan',
-			commitDate: 'date1',
-			tags: ['tag1', 'tag2']
+			committer: {
+				email: 'oseymen@gmail.com'
+			},
+			committedOn: 1437988060000,
+			tags: ['tag1','tag2']
 		};
 
 		gitGetLastCommitMethod
-			.yields(commit);
+			.yields(null, commit);
 
 		throughObjMethod
 			.yields(vinylFile, null, function(err, file) { 
@@ -171,7 +177,7 @@ describe('feature: set proxy description from git', function() {
 				expect(file.name).to.be.equal('proxy.xml');
 				expect(file.contents.toString('utf8')).to.be.equal(
 						'<APIProxy>' +
-							'<Description>example api tag1,tag2 on commit abcd by Ozan on date1</Description>' + 
+							'<Description>example api tag1,tag2 on commit abcd by oseymen@gmail.com on 2015-07-27T10:07:40+01:00</Description>' + 
 						'</APIProxy>');
 			});
 

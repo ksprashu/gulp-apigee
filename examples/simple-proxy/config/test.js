@@ -8,11 +8,11 @@ module.exports = {
 	delay: 5,
 	verbose: false,
 	replace: {
-		"apiproxy/gulp-v1.xml": [
-			{
-				xpath: "/APIProxy/Description",
-				value: "test123"
-			}
-		]
+		// "apiproxy/gulp-v1.xml": [
+		// 	{
+		// 		xpath: "/APIProxy/Description",
+		// 		value: "test123"
+		// 	}
+		// ]
 	}
 };
