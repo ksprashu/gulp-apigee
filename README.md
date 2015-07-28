@@ -1,8 +1,9 @@
+* delete proxy function implementation
 * options validations for each function
-* description field to have git hash, etc like Morrisons
 * node.js support
 ** read package.json and only zip modules within dependencies
 ** filter out modules that already deployed in Apigee
+
 * swagger documentation generation
 * check to see if there are policy files not referenced in default.xml files
 * deploy to several environments at the same time env=7,8
