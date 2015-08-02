@@ -78,6 +78,20 @@ describe('feature: import revision to apigee', function() {
 		});
 	});
 
+	it('should return err if response code is not 201 and body is empty', function(done) {
+		requestPostMethod
+			.yields(null, {statusCode: 401}, '');
+
+		apigee.import(options, bundle, function(err, body) {
+			expect(err).to.not.be.null;
+			expect(err.message).to.not.be.null;
+			var message = JSON.parse(err.message);
+			expect(message.statusCode).to.be.equal(401);
+			expect(message.body.message).to.be.empty;
+			done();
+		});
+	});
+
 	it('should validate options being null', function(done) {
 		requestPostMethod
 			.yields(null, successResponse, JSON.stringify(importResponseBody));

@@ -4,7 +4,7 @@
   "description": "A gulp plugin for Apigee functions",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "gulp test"
   },
   "repository": {
     "type": "git",
@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "git-last-commit": "^0.1.1",
+    "gulp-xml-replace": "^0.2.0",
     "moment": "^2.10.5",
     "request": "^2.55.0",
     "revalidator": "^0.3.1",

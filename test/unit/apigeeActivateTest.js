@@ -60,14 +60,14 @@ describe('feature: activate revision', function() {
 			.yields({message: 'someerr'});
 
 		apigee.activate(options, function(err, body) {
-			expect(err).to.not.be.null;
+			expect(err).to.be.not.null;
 			expect(err.message).to.be.equal('someerr');
 			expect(body).to.be.undefined;
 			done();
 		});
 	});
 
-	it('should return err if response code is not 201', function(done) {
+	it('should return err if response code is not 200', function(done) {
 		requestPostMethod
 			.yields(null, {statusCode: 400}, '{"message": "not-important"}');
 
@@ -77,6 +77,20 @@ describe('feature: activate revision', function() {
 			var message = JSON.parse(err.message);
 			expect(message.statusCode).to.be.equal(400);
 			expect(message.body.message).to.be.equal('not-important');
+			done();
+		});
+	});
+
+	it('should return err if response code is not 200 and body is empty', function(done) {
+		requestPostMethod
+			.yields(null, {statusCode: 401}, '');
+
+		apigee.activate(options, function(err, body) {
+			expect(err).to.not.be.null;
+			expect(err.message).to.not.be.null;
+			var message = JSON.parse(err.message);
+			expect(message.statusCode).to.be.equal(401);
+			expect(message.body.message).to.be.empty;
 			done();
 		});
 	});

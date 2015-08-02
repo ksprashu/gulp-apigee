@@ -11,10 +11,8 @@ var git = require('git-last-commit');
 var moment = require('moment');
 
 var PluginError = gutil.PluginError;
-
-const PLUGIN_NAME = 'gulp-apigee';
-const ATTRIBUTE = 2;
-const REGEX_WORDWITHDOLLAR = /\$[a-z.]+/gi;
+var PLUGIN_NAME = 'gulp-apigee';
+var REGEX_WORDWITHDOLLAR = /\$[a-z.]+/gi;
 
 // options = { org, api, username, password }
 var importRevision = function (options) {
@@ -206,7 +204,7 @@ var getDeployedRevision = function(options) {
 			revisionRead = true;
 
 			if (err) {
-				gutil.log(err.message);
+				gutil.log(gutil.colors.red(err.message));
 				s.push(null);
 				return;
 			}
@@ -219,54 +217,6 @@ var getDeployedRevision = function(options) {
 	};
 
 	return s;
-};
-
-var replace = function(options) {
-	if (!options) {
-		throw new PluginError(PLUGIN_NAME, 'options cannot be null or empty');
-	}
-
-	return through.obj(function(file, enc, cb) {
-		if (file.isDirectory()) {
-			cb(null, file);
-			return;
-		}
-
-		if (file.isNull()) {
-			cb(null, file);
-			return;
-		}
-
-		var path = file.relative;
-		var replacementsForThisFile = options[path];
-
-		if ((replacementsForThisFile === undefined) || (replacementsForThisFile === null) || (replacementsForThisFile.length === 0)) {
-			cb(null, file);
-			return;
-		}
-
-		gutil.log(gutil.colors.blue('replacing content in ' + path));
-
-		var fileContents = file.contents.toString('utf8');
-
-		var fileContentsXml = new dom().parseFromString(fileContents);
-		replacementsForThisFile.forEach(function(replacement) {
-			var node = select(fileContentsXml, replacement.xpath)[0];
-			if (node === undefined) {
-				gutil.log(gutil.colors.yellow('couldn\'t resolve replacement xpath ' + replacement.xpath + ' in ' + path));
-				return;
-			}
-			if (node.nodeType === ATTRIBUTE) {
-				node.value = replacement.value;
-			} else { //comment or element
-				node.firstChild.data = replacement.value;
-			}
-
-			file.contents = new Buffer(xmlToString(fileContentsXml));
-		});
-
-		cb(null, file);
-	});
 };
 
 var setProxyDescription = function() {
@@ -283,8 +233,6 @@ var setProxyDescription = function() {
 
 		if ((file.relative.substr(-4) === '.xml') &&
 				(file.contents.toString('utf8').indexOf('<APIProxy') > -1)) {
-			gutil.log(gutil.colors.blue('setting proxy description in ' + file.relative));
-
 			var fileContents = file.contents.toString('utf8');
 			var fileContentsXml = new dom().parseFromString(fileContents);
 			var descriptionElement = select(fileContentsXml, '/APIProxy/Description')[0];
@@ -294,6 +242,12 @@ var setProxyDescription = function() {
 			}
 
 			var desc = descriptionElement.firstChild.data;
+
+			if (desc.indexOf('$') < 0) {
+				gutil.log(gutil.colors.yellow(file.relative + ' does not contain any placeholders'));
+				cb(null, file);
+				return;
+			}
 
 			git.getLastCommit(function(err, commit) {
 				if (err) {
@@ -306,6 +260,7 @@ var setProxyDescription = function() {
 				desc.match(REGEX_WORDWITHDOLLAR).forEach(function(token) {
 					var prop = token.replace('$','');
 					desc = desc.replace(token, Object.resolve(prop, commit));
+					desc = desc.replace(/\s\s/g, ' '); //if any placeholder's value is empty, we get two spaces
 				});
 
 				gutil.log(gutil.colors.green('setting proxy description to "' + desc + '"'));
@@ -314,6 +269,7 @@ var setProxyDescription = function() {
 				cb(null, file);
 			});
 		} else {
+			// this is not proxy description file - pass it along
 			cb(null, file);
 		}
 	});
@@ -325,9 +281,9 @@ var xmlToString = function(xml) {
 	return str.replace(/\n/g, '');
 };
 
-Object.resolve = function(path, obj, safe) {
+Object.resolve = function(path, obj) {
     return path.split('.').reduce(function(prev, curr) {
-        return !safe ? prev[curr] : (prev ? prev[curr] : undefined);
+        return prev[curr];
     }, obj);
 };
 
@@ -335,6 +291,5 @@ module.exports.import = importRevision;
 module.exports.activate = activateRevision;
 module.exports.update = updateRevision;
 module.exports.promote = promote;
-module.exports.replace = replace;
 module.exports.getDeployedRevision = getDeployedRevision;
 module.exports.setProxyDescription = setProxyDescription;
