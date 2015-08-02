@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 var sinon = require('sinon');
 var request = require('request');
-var apigee = require('../../source/apigee.js');
+var apigee = require('../../source/helpers/apigee.js');
 
 var successResponse = {
 	statusCode: 201

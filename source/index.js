@@ -2,7 +2,7 @@
 
 var through = require('through2');
 var gutil = require('gulp-util');
-var apigee = require('./apigee.js');
+var apigee = require('./helpers/apigee.js');
 var stream = require('stream');
 var File = require('vinyl');
 var select = require('xpath.js');
