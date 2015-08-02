@@ -78,6 +78,20 @@ describe('feature: update revision', function() {
 		});
 	});
 
+	it('should return err if response code is not 200 and body is empty', function(done) {
+		requestPostMethod
+			.yields(null, {statusCode: 401}, '');
+
+		apigee.update(options, bundle, function(err, body) {
+			expect(err).to.be.not.null;
+			expect(err.message).to.be.not.null;
+			var message = JSON.parse(err.message);
+			expect(message.statusCode).to.be.equal(401);
+			expect(message.body.message).to.be.empty;
+			done();
+		});
+	});
+
 	it('should validate options being null', function(done) {
 		requestPostMethod
 			.yields(null, successResponse, JSON.stringify(updateResponseBody));

@@ -15,13 +15,13 @@ var throughObjMethod;
 
 describe('feature: set proxy description from git', function() {
 
-	before(function() {
+	beforeEach(function() {
 		gitGetLastCommitMethod = sinon.stub(git, 'getLastCommit');
 		gutilLogMethod = sinon.stub(gutil, 'log');
 		throughObjMethod = sinon.stub(through, 'obj');
 	});
 
-	after(function() {
+	afterEach(function() {
 		gitGetLastCommitMethod.restore();
 		gutilLogMethod.restore();
 		throughObjMethod.restore();
@@ -78,20 +78,80 @@ describe('feature: set proxy description from git', function() {
 		plugin.setProxyDescription();
 	});
 
-	it ('should handle if proxy file does not have description element', function() {
-		var vinylFile = vinylHelper.getVinyl('proxy.xml', '<APIProxy />');
+	it ('should not interfere if proxy description does not have placeholders', function(done) {
+		var proxyDescriptionFileContents = 
+			'<APIProxy>' + 
+				'<Description>example api</Description>' + 
+			'</APIProxy>';
+
+		var vinylFile = vinylHelper.getVinyl('proxy.xml', proxyDescriptionFileContents);
+
+		var commit = {
+			shortHash: 'abcd',
+			committer: {
+				email: 'oseymen@gmail.com'
+			},
+			committedOn: 1437988060,
+			tags: []
+		};
+
+		gitGetLastCommitMethod
+			.yields(null, commit);
+
 		throughObjMethod
 			.yields(vinylFile, null, function(err, file) { 
-				expect(err).to.be.not.null;
-				expect(err).to.be.equal('couldn\'t locate Description element in proxy.xml');
+				expect(err).to.be.null;
 				expect(file.name).to.be.equal('proxy.xml');
-				expect(file.contents.toString('utf8')).to.be.equal('<APIProxy />');
+				expect(gutilLogMethod.getCall(0).args[0]).to.be.equal(gutil.colors.yellow('proxy.xml does not contain any placeholders'));
+				expect(file.contents.toString('utf8')).to.be.equal(proxyDescriptionFileContents);
+
+				done();
 			});
 
 		plugin.setProxyDescription();
 	});
 
-	it('should set correct description for commit without tags', function() {
+	it ('should handle when git commands return error ', function(done) {
+		var proxyDescriptionFileContents = 
+			'<APIProxy>' + 
+				'<Description>example api $tags</Description>' + 
+			'</APIProxy>';
+
+		var vinylFile = vinylHelper.getVinyl('proxy.xml', proxyDescriptionFileContents);
+
+		gitGetLastCommitMethod
+			.yields('command not found git', undefined);
+
+		throughObjMethod
+			.yields(vinylFile, null, function(err, file) { 
+				expect(err).to.be.equal('command not found git');
+				expect(file.name).to.be.equal('proxy.xml');
+				expect(gutilLogMethod.callCount).to.be.equal(0);
+				expect(file.contents.toString('utf8')).to.be.equal(proxyDescriptionFileContents);
+
+				done();
+			});
+
+		plugin.setProxyDescription();
+	});
+
+	it ('should handle if proxy file does not have description element', function(done) {
+		var vinylFile = vinylHelper.getVinyl('proxy.xml', '<APIProxy />');
+		throughObjMethod
+			.yields(vinylFile, null, function(err, file) { 
+				expect(err).to.be.not.null;
+				expect(err).to.be.equal('couldn\'t locate Description element in proxy.xml');
+				expect(gutilLogMethod.callCount).to.be.equal(0);
+				expect(file.name).to.be.equal('proxy.xml');
+				expect(file.contents.toString('utf8')).to.be.equal('<APIProxy />');
+
+				done();
+			});
+
+		plugin.setProxyDescription();
+	});
+
+	it('should set correct description for commit without tags', function(done) {
 		var vinylFile = vinylHelper.getVinyl('proxy.xml', 
 				'<APIProxy>' + 
 					'<Description>example api $tags on commit $shortHash by $committer.email on $committedDate</Description>' + 
@@ -102,7 +162,7 @@ describe('feature: set proxy description from git', function() {
 			committer: {
 				email: 'oseymen@gmail.com'
 			},
-			committedOn: 1437988060000,
+			committedOn: 1437988060,
 			tags: []
 		};
 
@@ -115,14 +175,16 @@ describe('feature: set proxy description from git', function() {
 				expect(file.name).to.be.equal('proxy.xml');
 				expect(file.contents.toString('utf8')).to.be.equal(
 						'<APIProxy>' +
-							'<Description>example api  on commit abcd by oseymen@gmail.com on 2015-07-27T10:07:40+01:00</Description>' + 
+							'<Description>example api on commit abcd by oseymen@gmail.com on 2015-07-27T10:07:40+01:00</Description>' + 
 						'</APIProxy>');
+
+				done();
 			});
 
 		plugin.setProxyDescription();
 	});
 
-	it('should set correct description for commit with single tags', function() {
+	it('should set correct description for commit with single tags', function(done) {
 		var vinylFile = vinylHelper.getVinyl('proxy.xml', 
 				'<APIProxy>' + 
 					'<Description>example api $tags on commit $shortHash by $committer.email on $committedDate</Description>' + 
@@ -133,7 +195,7 @@ describe('feature: set proxy description from git', function() {
 			committer: {
 				email: 'oseymen@gmail.com'
 			},
-			committedOn: 1437988060000,
+			committedOn: 1437988060,
 			tags: ['tag1']
 		};
 
@@ -148,12 +210,14 @@ describe('feature: set proxy description from git', function() {
 						'<APIProxy>' +
 							'<Description>example api tag1 on commit abcd by oseymen@gmail.com on 2015-07-27T10:07:40+01:00</Description>' + 
 						'</APIProxy>');
+
+				done();
 			});
 
 		plugin.setProxyDescription();
 	});
 
-	it('should set correct description for commit with multiple tags', function() {
+	it('should set correct description for commit with multiple tags', function(done) {
 		var vinylFile = vinylHelper.getVinyl('proxy.xml', 
 				'<APIProxy>' + 
 					'<Description>example api $tags on commit $shortHash by $committer.email on $committedDate</Description>' + 
@@ -164,7 +228,7 @@ describe('feature: set proxy description from git', function() {
 			committer: {
 				email: 'oseymen@gmail.com'
 			},
-			committedOn: 1437988060000,
+			committedOn: 1437988060,
 			tags: ['tag1','tag2']
 		};
 
@@ -179,6 +243,8 @@ describe('feature: set proxy description from git', function() {
 						'<APIProxy>' +
 							'<Description>example api tag1,tag2 on commit abcd by oseymen@gmail.com on 2015-07-27T10:07:40+01:00</Description>' + 
 						'</APIProxy>');
+
+				done();
 			});
 
 		plugin.setProxyDescription();

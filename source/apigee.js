@@ -32,7 +32,9 @@ var importRevision = function(options, bundle, callback) {
 			return;
 		}
 
-		body = JSON.parse(body);
+		if (body) {
+			body = JSON.parse(body);
+		}
 
 		if (response.statusCode !== 201) {
 			var r = { statusCode: response.statusCode, body: body };
@@ -69,7 +71,9 @@ var activateRevision = function(options, callback) {
 			return;
 		}
 
-		body = JSON.parse(body);
+		if (body) {
+			body = JSON.parse(body);
+		}
 
 		if (response.statusCode !== 200) {
 			var r = { statusCode: response.statusCode, body: body };
@@ -105,7 +109,9 @@ var updateRevision = function(options, bundle, callback) {
 			return;
 		}
 
-		body = JSON.parse(body);
+		if (body) {
+			body = JSON.parse(body);
+		}
 
 		if (response.statusCode !== 200) {
 			var r = { statusCode: response.statusCode, body: body };
@@ -127,7 +133,9 @@ var getDeployedRevision = function(options, callback) {
 			return;
 		}
 
-		body = JSON.parse(body);
+		if (body) {
+			body = JSON.parse(body);
+		}
 
 		if (response.statusCode !== 200) {
 			var r = { statusCode: response.statusCode, body: body };

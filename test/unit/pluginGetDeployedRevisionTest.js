@@ -28,7 +28,6 @@ describe('feature: get deployed revision plugin', function() {
 		var exception;
 		try { plugin.getDeployedRevision(); } catch (e) { exception = e; }
 
-		expect(exception).to.be.not.undefined;
 		expect(exception).to.be.an.instanceof(gutil.PluginError);
 		expect(exception.message).to.be.equal('options cannot be null or empty');
 	});
@@ -64,7 +63,7 @@ describe('feature: get deployed revision plugin', function() {
 		s.on('readable', function() {
 			var buffer = s.read();
 			expect(buffer).to.be.null;
-			expect(gutilLogMethod.getCall(0).args[0]).to.be.equal('something happened');
+			expect(gutilLogMethod.getCall(0).args[0]).to.be.equal(gutil.colors.red('something happened'));
 			done();
 		});
 

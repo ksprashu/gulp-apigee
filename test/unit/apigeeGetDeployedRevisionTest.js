@@ -76,5 +76,19 @@ describe('feature: Get deployed revision', function() {
 			done();
 		});
 	});
+
+	it('should return err if response code is not 200 and body is empty', function(done) {
+		requestGetMethod
+			.yields(null, {statusCode: 401}, '');
+
+		apigee.getDeployedRevision(options, function(err, body) {
+			expect(err).to.be.not.null;
+			expect(err.message).to.be.not.null;
+			var message = JSON.parse(err.message);
+			expect(message.statusCode).to.be.equal(401);
+			expect(message.body.message).to.be.empty;
+			done();
+		});
+	});
 			
 });
